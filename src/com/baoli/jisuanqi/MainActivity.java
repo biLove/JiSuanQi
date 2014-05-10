@@ -17,12 +17,9 @@ public class MainActivity extends Activity {
 			R.id.btn_opt_min, R.id.btn_opt_plus, R.id.btn_opt_equl, };
 	private Button[] mBtnOpn = new Button[5];
 
-	// private EditText screenText;
-	public double mScreenNum = 0;
-	public String mPreOpn = "=";
+
 	protected TextView mScreen;
-	public int mOpnNum = 0;
-	public double mFirstNum = 0;
+	private CalculatorCore mCore;
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
@@ -31,6 +28,7 @@ public class MainActivity extends Activity {
 		setContentView(R.layout.calc_main);
 
 		blAttachButtonListener();
+		mCore = new CalculatorCore();
 	}
 
 	private void blAttachButtonListener() {
@@ -50,79 +48,23 @@ public class MainActivity extends Activity {
 
 	private Button.OnClickListener actionPerformed = new Button.OnClickListener() {
 		public void onClick(View v) {
+			String result = "0";
 			String command = ((Button) v).getText().toString();
 
-			if (command.compareTo("c") == 0) {
-				mScreen.setText("0");
-				mScreenNum = 0;
+			if (command.compareTo("c") == 0) {				
+				result = mCore.clickClear();
+				
 			} else if ("+-*/=".indexOf(command) != -1) {
-				wtOperater(command);
+				result = mCore.clickOpt(command);
 			} else if ("0123456789".indexOf(command) != -1) {
-				double i = Double.valueOf(command).doubleValue();
-				mScreenNum = mScreenNum * 10 + i;
-				mScreen.setText(String.valueOf(mScreenNum));
+				result = mCore.clickNum(command);
 			}
+			mScreen.setText(result);
 
+			
 		}
 	};
+	
 
-	private void wtOperater(String opt) {
-		try {
-			if (opt.equals("=") && mOpnNum == 0) {
-				mFirstNum = Double.parseDouble(mScreen.getText().toString());
-				mScreenNum = 0;
-				mScreen.setText(String.valueOf(mFirstNum));
-			}
-
-			else if (mOpnNum == 0
-					&& (opt.equals("+") || opt.equals("-") || opt.equals("*") || opt
-							.equals("/"))) {
-				mFirstNum = Double.parseDouble(mScreen.getText().toString());
-				mScreenNum = 0;
-				mPreOpn = opt;
-				mOpnNum = 1;
-				mScreen.setText(String.valueOf(mFirstNum));
-			}
-
-			else if (mOpnNum == 1
-					&& (opt.equals("=") || opt.equals("+") || opt.equals("-")
-							|| opt.equals("*") || opt.equals("/"))) {
-
-				mScreenNum = Double.valueOf(mScreen.getText().toString())
-						.doubleValue();
-
-				if (mPreOpn.equals("+")) {
-					mFirstNum += mScreenNum;
-				} else if (mPreOpn.equals("-")) {
-					mFirstNum -= mScreenNum;
-				} else if (mPreOpn.equals("*")) {
-					mFirstNum *= mScreenNum;
-				} else if (mPreOpn.equals("/")) {
-					if (mScreenNum != 0)
-						mFirstNum /= mScreenNum;
-					else
-						throw new ArithmeticException();
-				}
-
-				mScreen.setText(String.valueOf(mFirstNum));
-				if (opt.equals("=")) {
-					mOpnNum = 0;
-					mScreenNum = 0;
-				} else if (opt.equals("+") || opt.equals("-")
-						|| opt.equals("*") || opt.equals("/")) {
-					// screenNum = 0;
-					mPreOpn = opt;
-					mOpnNum = 1;
-					mScreenNum = 0;
-				}
-			}
-		} catch (NumberFormatException e) {
-			mScreen.setText("Number Format ERROR!");
-		} catch (ArithmeticException e) {
-			mScreen.setText("Div Number CAN NOT a ZERO!");
-			mPreOpn = "=";
-		} finally {
-		}
-	}
 
 }
